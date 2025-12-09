@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oumaima Khadri | Senior Frontend Architect</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            dark: '#0B1120',
+                            surface: '#1e293b',
+                            accent: '#38bdf8', // Sky Blue
+                            teal: '#2dd4bf',   // Teal
+                            purple: '#818cf8'  // Indigo
+                        }
+                    },
+                    backgroundImage: {
+                        'tech-grid': "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2338bdf8' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
+                        'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B1120; color: #f8fafc; overflow-x: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B1120; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        /* SCOOCS Background Animation */
+        .node-network { position: absolute; inset: 0; pointer-events: none; opacity: 0.4; }
+        .node {
+            position: absolute; width: 6px; height: 6px; background: #38bdf8; border-radius: 50%;
+            box-shadow: 0 0 10px #38bdf8; animation: floatNode 8s infinite ease-in-out;
+        }
+        .connection {
+            position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4), transparent);
+            transform-origin: left center; animation: pulseLine 4s infinite linear;
+        }
+        @keyframes floatNode { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(15px, -15px); } }
+        @keyframes pulseLine { 0% { opacity: 0; width: 0; } 50% { opacity: 1; width: 120px; } 100% { opacity: 0; width: 0; transform: translateX(60px); } }
+
+        /* Loader */
+        .preloader {
+            position: fixed; inset: 0; background: #0B1120; z-index: 9999;
+            display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; }
+
+        /* Vue Transitions */
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .slide-up-enter-active, .slide-up-leave-active { transition: all 0.4s ease-out; }
+        .slide-up-enter-from { opacity: 0; transform: translateY(20px); }
+        .slide-up-leave-to { opacity: 0; transform: translateY(20px); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-accent selection:text-brand-dark">
+
+    <div id="app" class="relative min-h-screen flex flex-col">
+        
+        <!-- Preloader -->
+        <div class="preloader" :class="{ 'hidden': isLoaded }">
+            <div class="flex flex-col items-center gap-4">
+                <span class="text-4xl font-bold text-white tracking-tighter">OK<span class="text-brand-accent">.</span></span>
+                <div class="w-32 h-0.5 bg-white/10 overflow-hidden rounded-full mt-2">
+                    <div class="w-full h-full bg-brand-accent animate-[pulse_1s_infinite]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Background -->
+        <div class="fixed inset-0 z-0 bg-[#0B1120]">
+            <div class="absolute inset-0 bg-tech-grid opacity-30"></div>
+            <div class="absolute inset-0 bg-noise opacity-20 mix-blend-overlay"></div>
+            <!-- Static Ambient Light (Performance Optimized) -->
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-purple/5 rounded-full blur-[120px] pointer-events-none"></div>
+        </div>
+
+        <!-- Navbar -->
+        <nav class="fixed top-0 w-full z-50 px-6 py-4 border-b border-white/5 bg-[#0B1120]/90 backdrop-blur-md transition-all duration-500" :class="{ '-translate-y-full': !isLoaded }">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="text-xl font-bold text-white cursor-pointer" @click="scrollToTop">
+                    Oumaima<span class="text-brand-accent">.</span>
+                </div>
+                <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400">
+                    <a href="#work" @click.prevent="scrollTo('#work')" class="hover:text-white transition-colors">Work</a>
+                    <a href="#about" @click.prevent="scrollTo('#about')" class="hover:text-white transition-colors">About</a>
+                    <a href="#contact" @click.prevent="scrollTo('#contact')" class="text-brand-accent hover:text-white transition-colors">Contact</a>
+                </div>
+                <a :href="'mailto:'+email" class="hidden md:block px-5 py-2 rounded-full border border-white/10 text-white text-xs font-bold hover:bg-white hover:text-brand-dark transition-all">
+                    Let's Talk
+                </a>
+                <button class="md:hidden text-white text-xl" @click="mobileMenuOpen = !mobileMenuOpen">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="relative z-10 max-w-7xl mx-auto pt-32 pb-20 px-4 md:px-8 w-full transition-opacity duration-1000 delay-300" :class="{ 'opacity-100': isLoaded, 'opacity-0': !isLoaded }">
+            
+            <!-- 1. HERO SECTION -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-24 items-center">
+                <div class="lg:col-span-8 flex flex-col justify-center" data-aos="fade-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent text-xs font-bold w-fit mb-6">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse"></span> Available for Remote Work
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-bold text-white leading-[1.1] mb-6 tracking-tight">
+                        Building <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-teal">Scalable</span> <br> Frontend Systems.
+                    </h1>
+                    
+                    <p class="text-slate-400 text-lg md:text-xl max-w-2xl leading-relaxed mb-8">
+                        Senior Architect specializing in Vue.js ecosystems. I bridge the gap between complex backend logic and pixel-perfect user interfaces.
+                    </p>
+                    
+                    <div class="flex gap-4">
+                        <button @click="scrollTo('#work')" class="bg-brand-accent text-[#0B1120] px-8 py-3.5 rounded-xl font-bold hover:bg-white transition-colors shadow-lg shadow-brand-accent/20">
+                            View Work
+                        </button>
+                        <a href="https://drive.google.com/file/d/1njnkmMH7SNIgmAeZG909cDEkOVwePa8r/view?usp=sharing" target="_blank" class="px-8 py-3.5 rounded-xl font-bold text-white border border-white/10 hover:bg-white/5 transition-colors flex items-center gap-2">
+                            <i class="fa-regular fa-file-pdf"></i> Resume
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Tech Stack Grid (Restored) -->
+                <div class="lg:col-span-4" data-aos="fade-left" data-aos-delay="200">
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tech Ecosystem</h3>
+                            <div class="flex gap-1.5">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div v-for="tech in techStack" :key="tech.name" 
+                                 @click="openSkillModal(tech)"
+                                 class="flex flex-col items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-all p-4 border border-white/5 hover:border-brand-accent/30 group">
+                                <img :src="tech.logo" :class="['w-8 h-8 mb-2 transition-transform group-hover:scale-110', tech.class]" :alt="tech.name">
+                                <span class="text-[10px] font-bold text-slate-400 group-hover:text-white">{{ tech.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. WORK GRID -->
+            <div id="work" class="flex flex-col gap-8">
+                <div class="flex items-end justify-between border-b border-white/10 pb-6" data-aos="fade-up">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white">Selected Works</h2>
+                        <p class="text-slate-400 text-sm mt-1">Production-ready applications & libraries</p>
+                    </div>
+                    <!-- Filter -->
+                    <div class="hidden sm:flex gap-1 bg-white/5 p-1 rounded-lg">
+                        <button v-for="cat in categories" :key="cat" @click="activeCategory = cat"
+                                :class="['px-4 py-1.5 rounded-md text-xs font-bold transition-all', activeCategory === cat ? 'bg-brand-accent text-[#0B1120]' : 'text-slate-400 hover:text-white']">
+                            {{ cat }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- SCOOCS (Featured - 2 Columns) -->
+                    <div v-if="shouldShow('System Arch')" class="glass-card md:col-span-2 rounded-3xl p-0 relative overflow-hidden group cursor-pointer min-h-[420px]" 
+                         @click="openProject(projects[0])" data-aos="fade-up">
+                        
+                        <!-- Neural Network Animation -->
+                        <div class="node-network">
+                            <div class="node" style="top: 20%; right: 15%;"></div>
+                            <div class="node" style="top: 50%; right: 35%; animation-delay: 1.5s"></div>
+                            <div class="node" style="top: 80%; right: 20%; animation-delay: 2.5s"></div>
+                            <div class="connection" style="top: 20%; right: 15%; width: 150px; transform: rotate(35deg);"></div>
+                            <div class="connection" style="top: 50%; right: 35%; width: 100px; transform: rotate(-15deg);"></div>
+                        </div>
+                        
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/80 to-transparent z-10"></div>
+                        
+                        <!-- Content -->
+                        <div class="relative z-20 h-full p-10 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-3 mb-6">
+                                    <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#0B1120"/><path d="M2 17L12 22L22 17" stroke="#0B1120" stroke-width="2"/><path d="M2 12L12 17L22 12" stroke="#0B1120" stroke-width="2"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-3xl font-bold text-white leading-none">SCOOCS</h3>
+                                        <span class="text-xs text-brand-accent font-bold uppercase tracking-wider">Experience Platform</span>
+                                    </div>
+                                </div>
+                                <p class="text-slate-300 text-lg max-w-lg leading-relaxed border-l-2 border-brand-accent/30 pl-4 mb-6">
+                                    Architected the frontend stabilization for a high-traffic solution serving 10k+ users. Optimized critical rendering paths and reduced bundle size by 40% via Vue 3 best practices.
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-white/10 rounded-lg text-xs font-bold text-white border border-white/10">Vue 3 Composition API</span>
+                                    <span class="px-3 py-1 bg-white/10 rounded-lg text-xs font-bold text-white border border-white/10">Ionic Framework</span>
+                                    <span class="px-3 py-1 bg-brand-accent/10 text-brand-accent rounded-lg text-xs font-bold border border-brand-accent/20">Lighthouse 95+</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-end pt-6">
+                                <span class="text-brand-accent text-sm font-bold flex items-center gap-2 group-hover:gap-3 transition-all">
+                                    View Architecture Details <i class="fa-solid fa-arrow-right"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Projects -->
+                    <div v-for="(project, index) in otherProjects" :key="project.title" 
+                         v-show="shouldShow(project.category)"
+                         class="glass-card md:col-span-1 rounded-3xl p-8 flex flex-col justify-between group cursor-pointer"
+                         @click="openProject(project)" :data-aos="'fade-up'" :data-aos-delay="index * 100">
+                        <div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl mb-6 text-white group-hover:scale-110 group-hover:bg-brand-accent/10 group-hover:border-brand-accent/30 transition-all duration-300">
+                                <i :class="project.icon" :style="{ color: project.color }"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">{{ project.title }}</h3>
+                            <p class="text-[10px] font-bold text-brand-accent uppercase tracking-wider mb-3">{{ project.role }}</p>
+                            <p class="text-slate-400 text-sm line-clamp-3 leading-relaxed">{{ project.desc }}</p>
+                        </div>
+                        <div class="mt-6 flex flex-wrap gap-2">
+                            <span v-for="tag in project.tags" :key="tag" class="text-[10px] font-bold text-slate-400 bg-black/30 border border-white/5 px-2 py-1 rounded">
+                                {{ tag }}
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. ABOUT SECTION -->
+            <div id="about" class="mt-32 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center" data-aos="fade-up">
+                <div>
+                    <h2 class="text-3xl font-bold text-white mb-6">More Than Just Code</h2>
+                    <div class="glass-card rounded-3xl p-8 relative min-h-[250px]">
+                        <div class="flex gap-4 border-b border-white/10 pb-4 mb-6 overflow-x-auto no-scrollbar">
+                            <button v-for="tab in ['Story', 'Philosophy', 'Remote']" :key="tab"
+                                    @click="activeAboutTab = tab"
+                                    :class="['text-xs font-bold uppercase tracking-wider transition-all px-3 py-1 rounded-lg', activeAboutTab === tab ? 'bg-brand-accent text-black' : 'text-slate-500 hover:text-white']">
+                                {{ tab }}
+                            </button>
+                        </div>
+                        <transition name="fade" mode="out-in">
+                            <p :key="activeAboutTab" class="text-slate-300 leading-relaxed text-lg font-light">
+                                {{ aboutContent[activeAboutTab] }}
+                            </p>
+                        </transition>
+                    </div>
+                </div>
+                <!-- Testimonial -->
+                <div class="glass-card rounded-3xl p-10 border-l-4 border-brand-accent relative">
+                    <i class="fa-solid fa-quote-left text-3xl text-brand-accent mb-6 block"></i>
+                    <p class="text-lg text-white italic mb-8 font-light leading-relaxed">
+                        "Oumaima demonstrated great attention to detail... Her collaborative approach, reliability, and problem-solving mindset made her an essential part of our product's continued evolution."
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sm text-white border border-white/10">TA</div>
+                        <div>
+                            <div class="text-white font-bold">Tiago Antunes</div>
+                            <div class="text-brand-accent text-sm">CTO at SCOOCS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer id="contact" class="border-t border-white/5 bg-[#0B1120] py-12 mt-20 relative z-10">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Ready to scale?</h2>
+                    <p class="text-slate-500 text-sm">Let's build something exceptional together.</p>
+                </div>
+                <div class="flex gap-4">
+                    <a :href="'mailto:'+email" class="bg-white text-brand-dark px-6 py-2 rounded-full text-sm font-bold hover:bg-brand-accent transition-colors">
+                        Send Email
+                    </a>
+                    <a href="https://linkedin.com/in/oumaimakhadri" target="_blank" class="px-6 py-2 rounded-full text-sm font-bold text-white border border-white/10 hover:border-white transition-colors">
+                        LinkedIn
+                    </a>
+                </div>
+            </div>
+            <div class="text-center mt-12 text-slate-700 text-xs">© 2025 Oumaima Khadri. Built with Vue 3.</div>
+        </footer>
+
+        <!-- Project Modal -->
+        <transition name="slide-up">
+            <div v-if="activeProject" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm" @click.self="activeProject = null">
+                <div class="glass-card w-full max-w-2xl sm:rounded-3xl rounded-t-3xl border-none shadow-2xl relative overflow-hidden bg-[#0B1120]">
+                    <div class="h-40 bg-gradient-to-r from-brand-dark to-slate-900 flex items-center justify-center relative">
+                        <div class="absolute inset-0 bg-tech-grid opacity-30"></div>
+                        <i :class="[activeProject.icon, 'text-5xl text-white/20']"></i>
+                        <button @click="activeProject = null" class="absolute top-4 right-4 w-8 h-8 bg-black/50 rounded-full text-white flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold text-white mb-1">{{ activeProject.title }}</h3>
+                        <span class="text-brand-accent text-xs font-bold uppercase tracking-wider">{{ activeProject.role }}</span>
+                        
+                        <p class="text-slate-300 text-lg mt-6 leading-relaxed border-l-4 border-brand-accent pl-6">
+                            {{ activeProject.desc }}
+                        </p>
+                        
+                        <div class="mt-8">
+                            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Stack</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span v-for="tag in activeProject.tags" :key="tag" class="px-3 py-1 bg-white/5 rounded text-sm text-slate-300 border border-white/5">
+                                    {{ tag }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- Skill Modal -->
+        <transition name="slide-up">
+            <div v-if="selectedSkill" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="selectedSkill = null">
+                <div class="glass-card w-full max-w-md rounded-2xl p-8 border border-white/10 shadow-2xl relative bg-[#0B1120]">
+                    <button @click="selectedSkill = null" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                    <div class="flex items-center gap-4 mb-6">
+                        <img :src="selectedSkill.logo" :class="['w-12 h-12', selectedSkill.class]" :alt="selectedSkill.name">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">{{ selectedSkill.name }}</h3>
+                            <p class="text-brand-accent text-sm">{{ selectedSkill.desc }}</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3">
+                        <li v-for="detail in selectedSkill.details" :key="detail" class="flex items-center gap-3 text-slate-300 text-sm">
+                            <i class="fa-solid fa-check text-brand-accent"></i> {{ detail }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </transition>
+
+    </div>
+
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const isLoaded = ref(false);
+                const mobileMenuOpen = ref(false);
+                const activeAboutTab = ref('Story');
+                const activeProject = ref(null);
+                const selectedSkill = ref(null);
+                const activeCategory = ref('All');
+                const email = "oumaimakhadri@gmail.com";
+                const categories = ['All', 'Frontend', 'System Arch'];
+
+                onMounted(() => {
+                    // Simulate fast load, then trigger animations
+                    setTimeout(() => {
+                        isLoaded.value = true;
+                        
+                        // Initialize AOS only after content is rendered
+                        nextTick(() => {
+                            AOS.init({
+                                once: true,
+                                offset: 50,
+                                duration: 800,
+                                easing: 'ease-out-cubic',
+                            });
+                        });
+                    }, 500);
+                });
+
+                // RESTORED TECH STACK DATA
+                const techStack = [
+                    { name: 'Vue.js', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg', desc: 'Core Framework', details: ['Composition API', 'Directives', 'Perf Optimization'] },
+                    { name: 'Nuxt', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg', desc: 'SSR Framework', details: ['SSR/SSG', 'Modules', 'SEO'] },
+                    { name: 'TypeScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', desc: 'Type Safety', details: ['Interfaces', 'Generics', 'Strict Mode'] },
+                    { name: 'Pinia', logo: 'https://pinia.vuejs.org/logo.svg', desc: 'State Management', details: ['Stores', 'Actions', 'Persist'] },
+                    { name: 'Jest', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jest/jest-plain.svg', desc: 'Unit Testing', details: ['85% Coverage', 'Snapshot', 'Mocking'] },
+                    { name: 'Symfony', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/symfony/symfony-original.svg', class: 'brightness-0 invert', desc: 'Backend', details: ['CRUD', 'API Platform', 'MySQL'] },
+                ];
+
+                const projects = [
+                    {
+                        title: 'SCOOCS Experience',
+                        role: 'Lead Architect',
+                        desc: 'Architected the frontend stabilization for a high-traffic hybrid event solution serving 10k+ concurrent users. Optimized critical rendering paths, reduced bundle size by 40%, and implemented a modular Vue 3 architecture to enable rapid feature deployment.',
+                        tags: ['Vue 3', 'Ionic', 'Performance', 'Architecture'],
+                        icon: 'fa-solid fa-layer-group',
+                        color: '#38bdf8',
+                        category: 'System Arch'
+                    },
+                    {
+                        title: 'Internal HR System',
+                        role: 'Lead Architect',
+                        desc: 'Designed and built a proprietary Vue/Pinia component library supporting 10,000+ users for internal HR operations. Established a reusable design system that reduced dev time for new features by 30%.',
+                        tags: ['Pinia', 'Library Design', 'Tailwind', 'Design System'],
+                        icon: 'fa-solid fa-users-gear',
+                        color: '#2dd4bf',
+                        category: 'System Arch'
+                    },
+                    {
+                        title: 'CommonShare B2B',
+                        role: 'Frontend Developer',
+                        desc: 'Migrated legacy views to Nuxt SSR for SEO, significantly improving search rankings. Established a rigorous testing culture using Jest, achieving 85% unit test coverage across the platform.',
+                        tags: ['Nuxt', 'Jest', 'Refactor', 'SSR'],
+                        icon: 'fa-solid fa-server',
+                        color: '#818cf8',
+                        category: 'Frontend'
+                    },
+                    {
+                        title: 'Pre-History',
+                        role: 'Frontend Intern',
+                        desc: 'My start: Translated 10+ UI/UX prototypes into responsive features with 100% design fidelity. Ensured code stability by writing comprehensive unit tests for all delivered components.',
+                        tags: ['Vue.js', 'UI/UX', 'Prototyping'],
+                        icon: 'fa-solid fa-palette',
+                        color: '#fbbf24',
+                        category: 'Frontend'
+                    }
+                ];
+
+                const otherProjects = computed(() => projects.slice(1));
+                const aboutContent = {
+                    Story: "Started as a full-stack intern with PHP/Laravel, but fell in love with the immediate feedback loop of Frontend. Over 5 years, I evolved from building simple UI components to architecting complex, data-heavy dashboards for European B2B markets.",
+                    Philosophy: "I don't just write code; I write systems. My philosophy is 'Engineered Clarity'—building components that are as easy for other developers to read as they are for users to interact with. Accessibility and performance are not afterthoughts.",
+                    Remote: "Remote-native since 2020. I understand the discipline required for async communication. I document proactively, over-communicate status, and ensure my timezone overlap (GMT+1) is maximized for collaboration."
+                };
+
+                const shouldShow = (cat) => activeCategory.value === 'All' || activeCategory.value === cat;
+                const openProject = (p) => activeProject.value = p;
+                const openSkillModal = (s) => selectedSkill.value = s;
+                const scrollTo = (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' });
+                const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                return {
+                    isLoaded, mobileMenuOpen, activeAboutTab, activeProject, selectedSkill, activeCategory, categories,
+                    aboutContent, projects, otherProjects, email, techStack,
+                    shouldShow, openProject, openSkillModal, scrollTo, scrollToTop
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
